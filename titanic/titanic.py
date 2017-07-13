@@ -29,68 +29,50 @@ def output_results(predicted):
         print(str(i) +"," +str(p))
         i += 1
 
+def clean_data(df):
+    # drop columns we don't want to train on
+    df.drop('PassengerId', 1, inplace=True)
+    df.drop('Name', 1, inplace=True)
+    df.drop('Ticket', 1, inplace=True)
+    df.drop('Cabin', 1, inplace=True)
+
+    # convert numbers to floats/ints
+    df['Pclass'] = test_data['Pclass'].astype(int)
+    
+    average_age = test_data['Age'].mean()
+    df['Age'][np.isnan(df['Age'])] = average_age
+    df['Age'] = df['Age'].astype(int)
+    df['SibSp'] = df['SibSp'].astype(int)
+    df['Parch'] = df['Parch'].astype(int)
+    
+    avg_fare = df['Fare'].mean()
+    df['Fare'][np.isnan(df['Fare'])] = avg_fare
+    df['Fare'] = df['Fare'].astype(float)
+
+    sex_dummies = pd.get_dummies(df['Sex'])
+    df.drop('Sex', 1, inplace=True)
+    df.join(sex_dummies)
+
+    em_dummies = pd.get_dummies(df['Embarked'])
+    df.drop('Embarked', 1, inplace=True)
+    df.join(em_dummies)
+
 if __name__ == "__main__":
     test_data = pd.read_csv('../data/titanic/test.csv')
     train_data = pd.read_csv('../data/titanic/train.csv')
 
-    # drop columns we don't want to train on
-    test_data.drop('PassengerId', 1, inplace=True)
-    test_data.drop('Name', 1, inplace=True)
-    test_data.drop('Ticket', 1, inplace=True)
-    test_data.drop('Cabin', 1, inplace=True)
-
-    train_data.drop('PassengerId', 1, inplace=True)
-    train_data.drop('Name', 1, inplace=True)
-    train_data.drop('Ticket', 1, inplace=True)
-    train_data.drop('Cabin', 1, inplace=True)
-
-    # convert numbers to floats/ints
-    test_data['Pclass'] = test_data['Pclass'].astype(int)
-    
-    average_age = test_data['Age'].mean()
-    test_data['Age'][np.isnan(test_data['Age'])] = average_age
-    test_data['Age'] = test_data['Age'].astype(int)
-    test_data['SibSp'] = test_data['SibSp'].astype(int)
-    test_data['Parch'] = test_data['Parch'].astype(int)
-    
-    avg_fare = test_data['Fare'].mean()
-    test_data['Fare'][np.isnan(test_data['Fare'])] = avg_fare
-    test_data['Fare'] = test_data['Fare'].astype(float)
-
-    sex_dummies = pd.get_dummies(test_data['Sex'])
-    test_data.drop('Sex', 1, inplace=True)
-    test_data.join(sex_dummies)
-
-    em_dummies = pd.get_dummies(test_data['Embarked'])
-    test_data.drop('Embarked', 1, inplace=True)
-    test_data.join(em_dummies)
-
-    train_data['Pclass'] = train_data['Pclass'].astype(int)
-    
-    average_age = train_data['Age'].mean()
-    train_data['Age'][np.isnan(train_data['Age'])] = average_age
-    train_data['Age'] = train_data['Age'].astype(int)
-    train_data['SibSp'] = train_data['SibSp'].astype(int)
-    train_data['Parch'] = train_data['Parch'].astype(int)
-    train_data['Fare'] = train_data['Fare'].astype(float)
-
-    sex_dummies = pd.get_dummies(train_data['Sex'])
-    train_data.drop('Sex', 1, inplace=True)
-    train_data.join(sex_dummies)
-
-    em_dummies = pd.get_dummies(train_data['Embarked'])
-    train_data.drop('Embarked', 1, inplace=True)
-    train_data.join(em_dummies)
+    train_df = clean_data(train_data)
+    test_df = clean_data(test_data)
     
     # get our target data
-    target = train_data['Survived'].astype(int)
-    train_data.drop('Survived', 1, inplace=True)
+    target = train_df['Survived'].astype(int)
+    train_df.drop('Survived', 1, inplace=True)
 
     model =  RandomForestClassifier(n_estimators=100)
-    clf = model.fit(train_data, target)
+    clf = model.fit(train_df, target)
     # score = clf.score(test_data, expected)
     # print (score)
 
-    predicted = clf.predict(test_data)
+    predicted = clf.predict(test_df)
     output_results(predicted)
 
