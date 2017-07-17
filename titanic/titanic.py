@@ -37,9 +37,9 @@ def clean_data(df):
     df.drop('Cabin', 1, inplace=True)
 
     # convert numbers to floats/ints
-    df['Pclass'] = test_data['Pclass'].astype(int)
+    df['Pclass'] = df['Pclass'].astype(int)
     
-    average_age = test_data['Age'].mean()
+    average_age = df['Age'].mean()
     df['Age'][np.isnan(df['Age'])] = average_age
     df['Age'] = df['Age'].astype(int)
     df['SibSp'] = df['SibSp'].astype(int)
@@ -56,6 +56,8 @@ def clean_data(df):
     em_dummies = pd.get_dummies(df['Embarked'])
     df.drop('Embarked', 1, inplace=True)
     df.join(em_dummies)
+
+    return df
 
 if __name__ == "__main__":
     test_data = pd.read_csv('../data/titanic/test.csv')
