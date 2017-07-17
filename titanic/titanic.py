@@ -42,8 +42,13 @@ def clean_data(df):
     average_age = df['Age'].mean()
     df['Age'][np.isnan(df['Age'])] = average_age
     df['Age'] = df['Age'].astype(int)
+
     df['SibSp'] = df['SibSp'].astype(int)
     df['Parch'] = df['Parch'].astype(int)
+
+    df['has_family'] = [1 if row['SibSp'] > 0 or row['Parch'] > 0 else 0 for index, row in df.iterrows()]
+    df.drop('SibSp', 1, inplace=True)
+    df.drop('Parch', 1, inplace=True)
     
     avg_fare = df['Fare'].mean()
     df['Fare'][np.isnan(df['Fare'])] = avg_fare
@@ -51,11 +56,13 @@ def clean_data(df):
 
     sex_dummies = pd.get_dummies(df['Sex'])
     df.drop('Sex', 1, inplace=True)
-    df.join(sex_dummies)
+    df = df.join(sex_dummies)
+    df.drop('male', 1, inplace=True)
 
     em_dummies = pd.get_dummies(df['Embarked'])
+    #print em_dummies
     df.drop('Embarked', 1, inplace=True)
-    df.join(em_dummies)
+    df = df.join(em_dummies)
 
     return df
 
@@ -70,10 +77,13 @@ if __name__ == "__main__":
     target = train_df['Survived'].astype(int)
     train_df.drop('Survived', 1, inplace=True)
 
-    model =  RandomForestClassifier(n_estimators=100)
+    model =  GaussianNB()
     clf = model.fit(train_df, target)
     # score = clf.score(test_data, expected)
     # print (score)
+
+    #with pd.option_context('display.max_rows', None, 'display.max_columns', 11):
+     #   print(train_df)
 
     predicted = clf.predict(test_df)
     output_results(predicted)
