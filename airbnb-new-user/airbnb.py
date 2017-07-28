@@ -3,8 +3,8 @@ from dateutil.parser import parse
 
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import cross_val_score
-
+from sklearn.model_selection import cross_val_score, train_test_split
+from sklearn.naive_bayes import GaussianNB, MultinomialNB
 
 def as_month(mo):
     if mo <= 3:
@@ -48,16 +48,28 @@ def handle_gender(df, age_data):
 
 if __name__ == '__main__':
     print('Starting feature engineering and data cleaning...')
-    test_df = pd.read_csv('../data/airbnb-new-user/train_users.csv')
+    train_df = pd.read_csv('../data/airbnb-new-user/train_users.csv')
     print('Handling dates...')
-    handle_dates(test_df)
+    handle_dates(train_df)
     print('Finished dates...')
 
     age_data = pd.read_csv('../data/airbnb-new-user/age_gender_bkts.csv')
     print('Handling ages...')
-    handle_age(test_df, age_data)
+    handle_age(train_df, age_data)
     print('Finished ages...')
 
     print('Handling gender...')
-    test_df = handle_gender(test_df, age_data)
-    print('Finished gender...')
+    train_df = handle_gender(train_df, age_data)
+    print('Finished gender...i')
+
+    test_df = train_df['country_destination']
+    train_df.drop('country_destination', 1, inplace=True)
+
+    X_train, X_test, Y_train, Y_test = train_test_split(
+        train_df, test_df, test_size=0.4, random_state=0)
+
+    clf = GaussianNB()
+    clf = clf.fit(X_train, Y_train)
+
+    print clf.score(X_test, Y_test)
+
