@@ -46,6 +46,21 @@ def handle_gender(df, age_data):
     gen_dummies.drop('-unknown-', 1, inplace=True)
     return df.join(gen_dummies)
 
+def handle_lang(df):
+    lang_dummies = pd.get_dummies(df['language'])
+    df.drop('language', 1, inplace=True)
+    return df.join(lang_dummies)
+
+def clean_unwanted_columns(df):
+    df.drop('signup_method', 1, inplace=True)
+    df.drop('signup_flow', 1, inplace=True)
+    df.drop('affiliate_channel', 1, inplace=True)
+    df.drop('affiliate_provider', 1, inplace=True)
+    df.drop('first_affiliate_tracked', 1, inplace=True)
+    df.drop('signup_app', 1, inplace=True)
+    df.drop('first_device_type', 1, inplace=True)
+    df.drop('first_browser', 1, inplace=True)
+
 if __name__ == '__main__':
     print('Starting feature engineering and data cleaning...')
     train_df = pd.read_csv('../data/airbnb-new-user/train_users.csv')
@@ -60,8 +75,17 @@ if __name__ == '__main__':
 
     print('Handling gender...')
     train_df = handle_gender(train_df, age_data)
-    print('Finished gender...i')
+    print('Finished gender...')
+        
+    print('Handling language...')
+    train_df = handle_lang(train_df)
+    print('Finished language...')
 
+    print('Removing unused columns')
+    clean_unwanted_columns(train_df)
+    print('Columns removed')
+
+    train_df.drop('id_', 1, inplace=True)
     test_df = train_df['country_destination']
     train_df.drop('country_destination', 1, inplace=True)
 
