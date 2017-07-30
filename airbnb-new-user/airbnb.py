@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import cross_val_score, train_test_split
 from sklearn.naive_bayes import GaussianNB, MultinomialNB
+from sklearn.ensemble import RandomForestClassifier
 
 def as_month(mo):
     if mo <= 3:
@@ -21,8 +22,8 @@ def handle_dates(df):
     season = []
     for index, row in df.iterrows():
         if pd.isnull(row['date_first_booking']):
-            days_to_book.append(-1)
-            season.append(-1)
+            days_to_book.append(0)
+            season.append(0)
         else:
             days = parse(row['date_first_booking']) - parse(row['date_account_created'])
             days_to_book.append(abs(days.days))
@@ -94,6 +95,13 @@ if __name__ == '__main__':
 
     clf = GaussianNB()
     clf = clf.fit(X_train, Y_train)
+    print('Gaussian: ' +str(clf.score(X_test, Y_test)))
+    
+    clf = MultinomialNB()
+    clf = clf.fit(X_train, Y_train)
+    print('Multinomial: ' +str(clf.score(X_test, Y_test)))
 
-    print clf.score(X_test, Y_test)
+    clf = RandomForestClassifier()
+    clf = clf.fit(X_train, Y_train)
+    print('Random Forest Classifier: ' +str(clf.score(X_test, Y_test)))
 
