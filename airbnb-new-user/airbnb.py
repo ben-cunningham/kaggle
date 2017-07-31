@@ -62,6 +62,27 @@ def clean_unwanted_columns(df):
     df.drop('first_device_type', 1, inplace=True)
     df.drop('first_browser', 1, inplace=True)
 
+def test_locally(df):
+    df.drop('id_', 1, inplace=True)
+    test_df = df['country_destination']
+    df.drop('country_destination', 1, inplace=True)
+
+    X_train, X_test, Y_train, Y_test = train_test_split(
+        df, test_df, test_size=0.4, random_state=0)
+
+    clf = GaussianNB()
+    clf = clf.fit(X_train, Y_train)
+    print('Gaussian: ' +str(clf.score(X_test, Y_test)))
+    
+    clf = MultinomialNB()
+    clf = clf.fit(X_train, Y_train)
+    print('Multinomial: ' +str(clf.score(X_test, Y_test)))
+
+    clf = RandomForestClassifier()
+    clf = clf.fit(X_train, Y_train)
+    print('Random Forest Classifier: ' +str(clf.score(X_test, Y_test)))
+
+
 if __name__ == '__main__':
     print('Starting feature engineering and data cleaning...')
     train_df = pd.read_csv('../data/airbnb-new-user/train_users.csv')
@@ -86,22 +107,4 @@ if __name__ == '__main__':
     clean_unwanted_columns(train_df)
     print('Columns removed')
 
-    train_df.drop('id_', 1, inplace=True)
-    test_df = train_df['country_destination']
-    train_df.drop('country_destination', 1, inplace=True)
-
-    X_train, X_test, Y_train, Y_test = train_test_split(
-        train_df, test_df, test_size=0.4, random_state=0)
-
-    clf = GaussianNB()
-    clf = clf.fit(X_train, Y_train)
-    print('Gaussian: ' +str(clf.score(X_test, Y_test)))
-    
-    clf = MultinomialNB()
-    clf = clf.fit(X_train, Y_train)
-    print('Multinomial: ' +str(clf.score(X_test, Y_test)))
-
-    clf = RandomForestClassifier()
-    clf = clf.fit(X_train, Y_train)
-    print('Random Forest Classifier: ' +str(clf.score(X_test, Y_test)))
-
+    test_locally(train_df) 
