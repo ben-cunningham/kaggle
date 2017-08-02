@@ -82,29 +82,46 @@ def test_locally(df):
     clf = clf.fit(X_train, Y_train)
     print('Random Forest Classifier: ' +str(clf.score(X_test, Y_test)))
 
-
-if __name__ == '__main__':
-    print('Starting feature engineering and data cleaning...')
-    train_df = pd.read_csv('../data/airbnb-new-user/train_users.csv')
+def process_data(df):
     print('Handling dates...')
-    handle_dates(train_df)
+    handle_dates(df)
     print('Finished dates...')
 
     age_data = pd.read_csv('../data/airbnb-new-user/age_gender_bkts.csv')
     print('Handling ages...')
-    handle_age(train_df, age_data)
+    handle_age(df, age_data)
     print('Finished ages...')
 
     print('Handling gender...')
-    train_df = handle_gender(train_df, age_data)
+    df = handle_gender(df, age_data)
     print('Finished gender...')
         
     print('Handling language...')
-    train_df = handle_lang(train_df)
+    df = handle_lang(df)
     print('Finished language...')
 
     print('Removing unused columns')
-    clean_unwanted_columns(train_df)
+    clean_unwanted_columns(df)
     print('Columns removed')
 
-    test_locally(train_df) 
+    return df
+
+def output_predictions(train_df, test_df):
+    train_df.drop('id_', 1, inplace=True)
+    train_Y = df['country_destination']
+    train_df.drop('country_destination', 1, inplace=True)
+
+    clf = RandomForestClassifier()
+    clf = clf.fit(train_df, train_Y)
+
+if __name__ == '__main__':
+    print('Starting feature engineering and data cleaning...')
+    train_df = pd.read_csv('../data/airbnb-new-user/train_users.csv')
+    train_df = process_data(train_df)
+    # test_locally(train_df)
+    
+    print('Outputting predictions')
+    # test_df = pd.read_csv('../data/airbnb-new-user/test_users.csv')
+    # output_predictions(train_df, test_df)
+    print('Finished')
+
